@@ -1,7 +1,7 @@
 CREATE procedure CheckoutCart
 	@UserId as int,
 	@PaymentMethodId as int,
-	@VoucherId as int=0
+	@VoucherId as int=NULL
 AS
 BEGIN
 	declare @OrderId int;
@@ -11,7 +11,7 @@ BEGIN
 
 	set @OrderId = dbo.GetOpenOrder(@UserId)
 	set @PaymentValue = dbo.GetOrderValue(@OrderId)
-	set @Discount = @PaymentValue * (SELECT Discount/100.0 FROM Voucher WHERE Id=@VoucherId)
+	set @Discount = @PaymentValue * ISNULL((SELECT Discount/100 FROM Voucher WHERE Id=@VoucherId), 0)
 
 	INSERT INTO Payment(MethodId, Value, PaymentDate, VoucherId)
 	output inserted.Id into @PaymentId
